@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>777576779534-tpt4jt6id3je1b4kpkrcuci7qpdg445d.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.777576779534-tpt4jt6id3je1b4kpkrcuci7qpdg445d</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBRPbRp67li77YEjSjQ_120S4qs0YXpyEc</string>
+	<key>GCM_SENDER_ID</key>
+	<string>777576779534</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.aiChat</string>
+	<key>PROJECT_ID</key>
+	<string>flutter-chat-bot-5f7b9</string>
+	<key>STORAGE_BUCKET</key>
+	<string>flutter-chat-bot-5f7b9.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:777576779534:ios:aa63026865aec92d8f115f</string>
+	<key>DATABASE_URL</key>
+	<string>https://flutter-chat-bot-5f7b9-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>

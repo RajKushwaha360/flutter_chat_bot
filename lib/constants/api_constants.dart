@@ -2,3 +2,7 @@
 
 String BASE_URL = 'https://api.openai.com/v1';
 String API_KEY = '<PLACE_YOUR_API_KEY_HERE>';
+
+void setApiKey(String apiKey){
+  API_KEY = apiKey;
+}

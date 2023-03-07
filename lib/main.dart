@@ -1,12 +1,19 @@
 import 'package:ai_chat/constants/constants.dart';
+import 'package:ai_chat/firebase_options.dart';
 import 'package:ai_chat/providers/chats_provider.dart';
 import 'package:ai_chat/providers/model_provider.dart';
 import 'package:ai_chat/screens/chat_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+Future<void> main() async {
+ WidgetsFlutterBinding.ensureInitialized();
+ await Firebase.initializeApp(
+   options: DefaultFirebaseOptions.currentPlatform,
+ );
+
+ runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {

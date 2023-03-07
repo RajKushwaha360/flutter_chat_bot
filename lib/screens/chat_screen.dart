@@ -1,3 +1,4 @@
+import 'package:ai_chat/constants/api_constants.dart';
 import 'package:ai_chat/constants/constants.dart';
 import 'package:ai_chat/providers/chats_provider.dart';
 import 'package:ai_chat/providers/model_provider.dart';
@@ -6,6 +7,7 @@ import 'package:ai_chat/services/api_services.dart';
 import 'package:ai_chat/services/assets_manager.dart';
 import 'package:ai_chat/widgets/chat_widget.dart';
 import 'package:ai_chat/widgets/text_widget.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
@@ -19,6 +21,35 @@ class ChatScreen extends StatefulWidget {
 
 class _ChatScreenState extends State<ChatScreen> {
   bool _isAiTyping = false;
+  bool _isLoading = true;
+
+  void getApiKey() async {
+    DatabaseReference reference = FirebaseDatabase.instance.ref();
+
+    final snapshot = await reference.child('api').get();
+
+    if (snapshot.exists) {
+      setApiKey(snapshot.value.toString());
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text(
+          'Could not fetch Api Key. Please try again.',
+        ),
+        action: SnackBarAction(
+          label: 'Try Again',
+          textColor: Colors.white,
+          onPressed: (() {
+            getApiKey();
+          }),
+        ),
+        duration: Duration(seconds: 5),
+        backgroundColor: Colors.red,
+      ));
+    }
+    setState(() {
+      _isLoading = false;
+    });
+  }
 
   TextEditingController textEditingController = TextEditingController();
   late FocusNode focusNode;
@@ -28,6 +59,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void initState() {
     _listScrollController = ScrollController();
     focusNode = FocusNode();
+    getApiKey();
     super.initState();
   }
 
@@ -68,123 +100,129 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Flexible(
-              child: ListView.builder(
-                physics: const BouncingScrollPhysics(),
-                controller: _listScrollController,
-                itemBuilder: ((context, index) {
-                  bool isLast = false;
-                  if (index == chatProvider.getChatList.length - 1) {
-                    isLast = true;
-                    // print(chatProvider.getChatList[index].msg);
-                  }
-                  return ChatWidget(
-                    msg: chatProvider.getChatList[index].msg,
-                    chatIndex: chatProvider.getChatList[index].chatIndex,
-                    isLast: isLast,
-                  );
-                }),
-                itemCount: chatProvider.getChatList.length,
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(
+                color: Colors.white,
               ),
-            ),
-            if (_isAiTyping) ...[
-              const Padding(
-                padding: EdgeInsets.all(15),
-                child: SpinKitThreeBounce(
-                  color: Colors.white,
-                  size: 18,
-                ),
-              ),
-            ],
-            
-            Material(
-              color: cardColor,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+            )
+          : SafeArea(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(
-                        maxHeight: 100,
+                  Flexible(
+                    child: ListView.builder(
+                      physics: const BouncingScrollPhysics(),
+                      controller: _listScrollController,
+                      itemBuilder: ((context, index) {
+                        bool isLast = false;
+                        if (index == chatProvider.getChatList.length - 1) {
+                          isLast = true;
+                          // print(chatProvider.getChatList[index].msg);
+                        }
+                        return ChatWidget(
+                          msg: chatProvider.getChatList[index].msg,
+                          chatIndex: chatProvider.getChatList[index].chatIndex,
+                          isLast: isLast,
+                        );
+                      }),
+                      itemCount: chatProvider.getChatList.length,
+                    ),
+                  ),
+                  if (_isAiTyping) ...[
+                    const Padding(
+                      padding: EdgeInsets.all(15),
+                      child: SpinKitThreeBounce(
+                        color: Colors.white,
+                        size: 18,
                       ),
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        reverse: true,
-                        physics: const BouncingScrollPhysics(),
-                        
-                        child: TextField(
-                          focusNode: focusNode,
-                          cursorColor: Colors.white,
-                          style: const TextStyle(
-                            color: Colors.white,
-                          ),
-                          keyboardType: TextInputType.multiline,
-                          minLines: 1,
-                          maxLines: null,
-                          maxLength: 256,
-                          buildCounter: null,
-                          controller: textEditingController,
-                          decoration: const InputDecoration(
-                            enabledBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
+                    ),
+                  ],
+                  Material(
+                    color: cardColor,
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              maxHeight: 100,
                             ),
-                            focusedBorder: UnderlineInputBorder(
-                              borderSide: BorderSide(color: Colors.transparent),
-                            ),
-                            contentPadding: EdgeInsets.all(10),
-                            counter: SizedBox(
-                              height: 0,
-                            ),
-                            hintText: 'How can I help you?',
-                            hintStyle: TextStyle(
-                              color: Colors.grey,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.vertical,
+                              reverse: true,
+                              physics: const BouncingScrollPhysics(),
+                              child: TextField(
+                                focusNode: focusNode,
+                                cursorColor: Colors.white,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
+                                keyboardType: TextInputType.multiline,
+                                minLines: 1,
+                                maxLines: null,
+                                maxLength: 256,
+                                buildCounter: null,
+                                controller: textEditingController,
+                                decoration: const InputDecoration(
+                                  enabledBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
+                                  ),
+                                  focusedBorder: UnderlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.transparent),
+                                  ),
+                                  contentPadding: EdgeInsets.all(10),
+                                  counter: SizedBox(
+                                    height: 0,
+                                  ),
+                                  hintText: 'How can I help you?',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    onPressed: () async {
-                      if (textEditingController.text.trim().isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please type your query'),
-                          ),
-                        );
-                        return;
-                      }
+                        IconButton(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          onPressed: () async {
+                            if (textEditingController.text.trim().isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please type your query'),
+                                ),
+                              );
+                              return;
+                            }
 
-                      if (_isAiTyping) {
-                        ScaffoldMessenger.of(context)
-                            .showSnackBar(const SnackBar(
-                          content: TextWidget(
-                            label: 'Please query one at a time.',
-                          ),
-                          backgroundColor: Colors.red,
-                        ));
-                      }
+                            if (_isAiTyping) {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(const SnackBar(
+                                content: TextWidget(
+                                  label: 'Please query one at a time.',
+                                ),
+                                backgroundColor: Colors.red,
+                              ));
+                            }
 
-                      await sendChatMessage(
-                        modelsProvider: modelsProvider,
-                        chatProvider: chatProvider,
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.send,
-                      color: Colors.white,
+                            await sendChatMessage(
+                              modelsProvider: modelsProvider,
+                              chatProvider: chatProvider,
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 
